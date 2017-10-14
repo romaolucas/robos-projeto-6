@@ -11,6 +11,7 @@ public class Graph {
     public double[][] map; //distance to source Map
     public double[][] heuristicMap; //heuristic relative to the source Map
     public double[][] probMap; //prob of obstacle Map
+    public Vertex[][] parent;
     public int width;
     public int height;
     public int dim;
@@ -30,7 +31,9 @@ public class Graph {
         }
         this.lines = lines;
         fillMapWithObstacles(lines);
-        discretizeMap(dim); 
+        discretizeMap(dim);
+        convolution(1); 
+        //fillMapForSouce is eventually called from outside;
     }
 
     public void fillMapWithObstacles(Line2D.Double[] lines) {
@@ -50,13 +53,13 @@ public class Graph {
         int newWidth = width / dim;
         double newMap[][] = new double[newHeight][newWidth];
         double newProbMap[][] = new double[newHeight][newWidth];
+        parent = new Vertex[newHeight][newWidth];
         for (int y = 0; y < newHeight; y++) {
             for (int x = 0; x < newWidth; x++) {
                 newMap[y][x] = Double.MAX_VALUE;
+                parent[y][x] = null;
             }
         }
-
-
         for (int y = 0; y < newHeight; y++) {
             for (int x = 0; x < newWidth; x++) {
                 for (int y1 = y * dim; y1 < (y * dim) + dim; y1++) {
@@ -79,7 +82,7 @@ public class Graph {
         this.heuristicMap = new double[height][width];
         for (int y = 0; y < height; y ++) {
             for (int x = 0; x < width; x++) {
-            double deltaX = sourceX - x);
+            double deltaX = sourceX - x;
             double deltaY = sourceY - y;
             this.heuristicMap[y][x] = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
             this.map[y][x] = Math.sqrt(deltaX * deltaX + deltaY * deltaY); 
@@ -87,23 +90,74 @@ public class Graph {
         }
     }
 
+
     public void convolution(int n) {
         for (int i = 0; i < n; i++) {
             double newProbMap[][] = new double[height][width];
             for (int y = 0; y < height; y ++) {
                 for (int x = 0; x < width; x++) {
-                    newProbMap[y][x] = applyConvolutionMask(x, y);
+                    newProbMap[y][x] = applyConvolutionMask(y, x);
                 }
             }
             probMap = newProbMap;
         }
-
     }
 
-    public double applyConvolutionMask(int x, int y) {
+    public double applyConvolutionMask(int y, int x) {
         double mask[][] = new double[3][3];
+        mask[0][0] = 0.05;
+        mask[0][1] = 0.1;
+        mask[0][2] = 0.05;
+        mask[1][0] = 0.1;
+        mask[1][1] = 0.4;
+        mask[1][2] = 0.1;
+        mask[2][0] = 0.05;
+        mask[2][1] = 0.05;
+        mask[2][2] = 0.05;
 
-        return 0.0;
+        // double test[][] = new double[3][3];
+        // test[0][0] = 0;
+        // test[0][1] = 0;
+        // test[0][2] = 0;
+        // test[1][0] = 0;
+        // test[1][1] = 1;
+        // test[1][2] = 0;
+        // test[2][0] = 0;
+        // test[2][1] = 0;
+        // test[2][2] = 0;
+
+        double maskedValue = 0;
+        int n = 0;
+        int m = 0;
+        for (int i = 1; i > -2; i--) {
+            m = 0;
+            for (int j = 1; j > -2; j--) {
+                if (y - i < 0 || y - i >= height || x - j < 0 || x - j >= width) {
+                    maskedValue += 0;
+                } else {
+                    // System.out.println("to fazendo " + (y - i) + ", " + (x - j) + " com " + n + ", " + m);
+                    // System.out.println("to fazendo " + test[y - i][x -j] + " com " + mask[n][m]);
+                    maskedValue += mask[n][m] * probMap[y - i][x - j];
+                }
+                m++;
+            }
+            n++;
+        }
+        return maskedValue;
+    }
+
+    public void setParent(int y, int x, Vertex v) {
+        parent[y][x] = v; 
+    }
+
+    public static void main(String[] args) {
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j ++) {
+                System.out.println(i+j);
+            }
+        }
+
     }
 
     public Queue<Vertex> linearizePath(Stack<Vertex> path) {

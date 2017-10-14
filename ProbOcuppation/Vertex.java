@@ -41,6 +41,11 @@ public class Vertex implements Comparable<Vertex> {
         return neighbors;
     }
 
+    public void setDistToSource(Graph g) {
+        this.distToSource = g.map[(int) this.posY][(int) this.posX];
+    }
+
+
     public int compareTo(Vertex w) {
         if (this.distToSource < w.distToSource)
             return -1;
