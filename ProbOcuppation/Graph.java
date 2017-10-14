@@ -17,7 +17,7 @@ public class Graph {
     public int dim;
     public Line2D.Double[] lines;
 
-    public Graph(int width, int height, int dim, int radius, Line2D.Double[] lines) {
+    public Graph(int width, int height, int dim, int numberOfConvolutions, Line2D.Double[] lines) {
         this.width = width;
         this.height = height;
         this.dim = dim;
@@ -32,7 +32,7 @@ public class Graph {
         this.lines = lines;
         fillMapWithObstacles(lines);
         discretizeMap(dim);
-        convolution(1); 
+        convolution(numberOfConvolutions); 
         //fillMapForSouce is eventually called from outside;
     }
 
@@ -148,6 +148,10 @@ public class Graph {
 
     public void setParent(int y, int x, Vertex v) {
         parent[y][x] = v; 
+    }
+
+    public Vertex parentOf(int y, int x) {
+        return parent[y][x]; 
     }
 
     public static void main(String[] args) {

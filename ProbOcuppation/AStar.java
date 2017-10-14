@@ -1,4 +1,5 @@
 import java.util.*;
+import java.awt.geom.Line2D;
 
 public class AStar {
 
@@ -29,7 +30,7 @@ public class AStar {
         v.setDistToSource(G);
         pq.add(origin);
         while (!pq.isEmpty() && !goal.equals(v)) {
-            v = q.poll();
+            v = pq.poll();
             int vX = (int) v.posX;
             int vY = (int) v.posY;
             double vDist = G.map[vY][vX];
@@ -41,8 +42,9 @@ public class AStar {
                 int y = (int) neighbor.posY;
                 double neighDist = G.map[y][x];
                 if (vDist + vPriority < neighDist) {
-                    G.setParent(y, x, vY, vX);
+                    G.setParent(y, x, v);
                     G.map[y][x] = vDist + vPriority;
+                    //tem que atualizar heuristicMap pro neighbor?
                     if (pq.contains(neighbor)) {
                         pq.remove(neighbor);
                         pq.add(neighbor);
@@ -52,13 +54,13 @@ public class AStar {
                 }
             }
         }
-        int x = goal.posX;
-        int y = goal.posY;
-        while (G.parent[y][x] != NO_MOVE) {
+        int x = (int) goal.posX;
+        int y = (int) goal.posY;
+        while (G.parentOf(y, x).posX != x || G.parentOf(y, x).posY != y) {
             path.add(new Vertex(y, x));
-            Vertex next = G.vertexFrom(G.parent[y][x]);
-            x = next.posX;
-            y = next.posY;
+            Vertex next = G.parentOf(y, x);
+            x = (int) next.posX;
+            y = (int) next.posY;
         }
         path.add(new Vertex(y, x));
         Collections.reverse(path);
@@ -67,7 +69,7 @@ public class AStar {
 
     public static void main(String[] args) {
         int dim = 10; // precisao da discretizacao, 10 = 1cmx1cm, 20 = 2cmx2cm, 1 = discretizacao minima, cada vertice 1 milimetro.
-        int radius = 0; // raio de dilatacao das linhas
+        int numberOfConvolutions = 1; // numero de convolucoes a se aplicar no mapa de probabilidade
         // dimensao do mapa em milimetros
         int widthMap = 1189;
         int heightMap = 841;
@@ -93,9 +95,9 @@ public class AStar {
         };
         StdDraw.setXscale(0, widthMap / dim);
         StdDraw.setYscale(0, heightMap / dim);
-        StdDraw.setPenRadius(0.04);
+        StdDraw.setPenRadius(0.02);
         StdDraw.setPenColor(StdDraw.BLACK);
-        Graph G = new Graph(widthMap, heightMap, dim, radius, lines);
+        Graph G = new Graph(widthMap, heightMap, dim, numberOfConvolutions, lines);
 
         // pontos iniciais e finais
         double startX = 90 / dim;
@@ -105,17 +107,19 @@ public class AStar {
 
         for (int y = 0; y < G.height; y++) {
             for (int x = 0; x < G.width; x++) {
-                if (G.map[y][x] == -1) {
+                if (G.probMap[y][x] > 0.3) {
                     StdDraw.setPenColor(StdDraw.BLACK);
                     StdDraw.point(x, y);
                 } 
             }
         }
 
-        G.fillMapForSource((int) startX, (int) startY);
+        G.fillMapForSource((int) startX * dim, (int) startY * dim);
 
         List<Vertex> path = new ArrayList<>();
-        path = findShortestPath(G, G.getVertex(0), G.getVertex(7));
+        Vertex startVertex = new Vertex(startX, startY);
+        Vertex goalVertex = new Vertex(goalX, goalY);
+        path = findShortestPath(G, startVertex, goalVertex);
         System.out.println("Caminho de (90, 730) ate (490, 18)");
         for (Vertex v : path) {
             System.out.println(v);
