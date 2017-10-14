@@ -82,12 +82,14 @@ public class Graph {
         this.heuristicMap = new double[height][width];
         for (int y = 0; y < height; y ++) {
             for (int x = 0; x < width; x++) {
-            double deltaX = sourceX - x;
-            double deltaY = sourceY - y;
-            this.heuristicMap[y][x] = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            this.map[y][x] = Math.sqrt(deltaX * deltaX + deltaY * deltaY); 
+                double deltaX = sourceX - x;
+                double deltaY = sourceY - y;
+                this.heuristicMap[y][x] = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                // this.map[y][x] = Math.sqrt(deltaX * deltaX + deltaY * deltaY); 
             } 
         }
+        // this.heuristicMap[sourceY][sourceX] = 0;
+        this.map[sourceY][sourceX] = 0;
     }
 
 
@@ -147,7 +149,8 @@ public class Graph {
     }
 
     public void setParent(int y, int x, Vertex v) {
-        parent[y][x] = v; 
+        parent[y][x] = v;
+        System.out.println("settei " + v.distToSource); 
     }
 
     public Vertex parentOf(int y, int x) {

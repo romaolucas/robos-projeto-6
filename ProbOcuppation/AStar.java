@@ -28,9 +28,14 @@ public class AStar {
         List<Vertex> path = new ArrayList<>();
         Vertex v = origin;
         v.setDistToSource(G);
-        pq.add(origin);
+        goal.setDistToSource(G);
+        pq.add(v);
+        int adi = 1;
         while (!pq.isEmpty() && !goal.equals(v)) {
             v = pq.poll();
+            StdDraw.setPenRadius(0.01);
+            StdDraw.setPenColor(StdDraw.GREEN);
+            StdDraw.point(v.posX, v.posY);
             int vX = (int) v.posX;
             int vY = (int) v.posY;
             double vDist = G.map[vY][vX];
@@ -38,6 +43,7 @@ public class AStar {
             List<Vertex> neighbors = v.getNeighbors(4, G.width, G.height);
             for (Vertex neighbor : neighbors) {
                 neighbor.setDistToSource(G);
+                System.out.println(vDist + vPriority + " < " + vPriority + " ?");
                 int x = (int) neighbor.posX;
                 int y = (int) neighbor.posY;
                 double neighDist = G.map[y][x];
@@ -48,14 +54,19 @@ public class AStar {
                     if (pq.contains(neighbor)) {
                         pq.remove(neighbor);
                         pq.add(neighbor);
+                        adi++;
                     } else {
+                        adi++;
                         pq.add(neighbor);
                     }
                 }
             }
         }
+        System.out.println(adi);
         int x = (int) goal.posX;
         int y = (int) goal.posY;
+        System.out.println("y:" + v.posY + " x:" + v.posX);
+        System.out.println("y:" + y + " x:" + x);
         while (G.parentOf(y, x).posX != x || G.parentOf(y, x).posY != y) {
             path.add(new Vertex(y, x));
             Vertex next = G.parentOf(y, x);
