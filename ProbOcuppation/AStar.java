@@ -35,11 +35,18 @@ public class AStar {
         int goalY = (int) goal.posY;
         int adi = 1;
         int pintei = 0;
+               for (int y = 0; y < G.height; y ++) {
+                for (int x = 0; x < G.width; x++) {
+                    // newProbMap[y][x] = applyConvolutionMask(y, x);
+                    if (G.probMap[y][x] > 0) System.out.println(G.probMap[y][x]);
+                }
+            }
+            System.out.println("terminei no metodo");
         while (!pq.isEmpty() && !goal.equals(v)) {
             v = pq.poll();
 
             StdDraw.point(v.posX, v.posY);
-            System.out.println("pintei " + pintei + " e adicionei " + adi);
+            // System.out.println("pintei " + pintei + " e adicionei " + adi);
             pintei++;
             int vX = (int) v.posX;
             int vY = (int) v.posY;
@@ -47,6 +54,7 @@ public class AStar {
             G.explored[vY][vX] = 1;
             double vDist = G.map[vY][vX];
             double vProb = G.probMap[vY][vX];
+            if (vProb > 0) System.out.println(vProb);
             double vPriority = G.heuristicMap[vY][vX] + (alpha * vDist) + ((1 - alpha) * vProb);
             List<Vertex> neighbors = v.getNeighbors(4, G.width, G.height);
             for (Vertex neighbor : neighbors) {

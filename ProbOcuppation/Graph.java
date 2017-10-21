@@ -34,6 +34,12 @@ public class Graph {
         fillMapWithObstacles(lines);
         discretizeMap(dim);
         convolution(numberOfConvolutions); 
+        for (int y = 0; y < this.height; y ++) {
+            for (int x = 0; x < this.width; x++) {
+                // newProbMap[y][x] = applyConvolutionMask(y, x);
+                // if (probMap[y][x] > 0) System.out.println(probMap[y][x]);
+                }
+            }
         //fillMapForSouce is eventually called from outside;
     }
 
@@ -44,40 +50,42 @@ public class Graph {
             double m = (line.getY2() - line.getY1()) / (line.getX2() - line.getX1()); 
             for (int x = (int) startX; x <= (int) finalX; x++) {
                 int y = (int) (m * (x - line.getX1()) + line.getY1());
-                probMap[y][x] = 1.0;
+                this.probMap[y][x] = 1.0;
             }
         }
     }
 
     public void discretizeMap(int dim) {
-        int newHeight = height / dim;
-        int newWidth = width / dim;
+        int newHeight = this.height / dim;
+        int newWidth = this.width / dim;
         double newMap[][] = new double[newHeight][newWidth];
         double newProbMap[][] = new double[newHeight][newWidth];
         parent = new Vertex[newHeight][newWidth];
         for (int y = 0; y < newHeight; y++) {
             for (int x = 0; x < newWidth; x++) {
                 newMap[y][x] = Double.MAX_VALUE;
-                parent[y][x] = null;
+                this.parent[y][x] = null;
             }
         }
         for (int y = 0; y < newHeight; y++) {
             for (int x = 0; x < newWidth; x++) {
                 for (int y1 = y * dim; y1 < (y * dim) + dim; y1++) {
                     for (int x1 = x * dim; x1 < (x * dim) + dim; x1++) {
-                        if (probMap[y1][x1] == 1.0) newProbMap[y][x] = 1.0;
+                        if (this.probMap[y1][x1] == 1.0) newProbMap[y][x] = 1.0;
                     }
                 }
             }
         }
 
-        height = newHeight;
-        width = newWidth;
-        map = newMap;
-        probMap = newProbMap;
+        this.height = newHeight;
+        this.width = newWidth;
+        this.map = newMap;
+        this.probMap = newProbMap;
     }
 
     public void fillMapForSource(int sourceX, int sourceY) { //consider sourceX and sourceY in mm
+        int height = this.height;
+        int width = this.width;
         sourceX = sourceX / dim;
         sourceY = sourceY / dim;
         this.heuristicMap = new double[height][width];
@@ -97,15 +105,25 @@ public class Graph {
 
 
     public void convolution(int n) {
+        int height = this.height;
+        int width = this.width;
         for (int i = 0; i < n; i++) {
             double newProbMap[][] = new double[height][width];
             for (int y = 0; y < height; y ++) {
                 for (int x = 0; x < width; x++) {
                     newProbMap[y][x] = applyConvolutionMask(y, x);
+                    // if (newProbMap[y][x] > 0) System.out.println(newProbMap[y][x]);
                 }
             }
-            probMap = newProbMap;
+            this.probMap = newProbMap;
         }
+
+       // for (int y = 0; y < height; y ++) {
+       //      for (int x = 0; x < width; x++) {
+       //              // newProbMap[y][x] = applyConvolutionMask(y, x);
+       //              // if (probMap[y][x] > 0) System.out.println(probMap[y][x]);
+       //          }
+       //      }
     }
 
     public double applyConvolutionMask(int y, int x) {
