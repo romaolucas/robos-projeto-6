@@ -19,8 +19,8 @@ public class Vertex implements Comparable<Vertex> {
     public List<Vertex> getNeighbors(int neighborhood, int width, int height) {
         Vertex down = new Vertex(this.posX, Math.max(this.posY - 1, 0));
         Vertex up = new Vertex(this.posX, Math.min(this.posY + 1, height - 1));
-        Vertex right = new Vertex(Math.max(this.posX - 1, 0), this.posY);
-        Vertex left = new Vertex(Math.min(this.posX + 1, width - 1), this.posY);
+        Vertex left = new Vertex(Math.max(this.posX - 1, 0), this.posY);
+        Vertex right = new Vertex(Math.min(this.posX + 1, width - 1), this.posY);
         if (neighborhood == 4) return Arrays.asList(up, down, left, right);
 
         Vertex bottomLeft = new Vertex(Math.max(this.posX - 1, 0), Math.max(this.posY - 1, 0));

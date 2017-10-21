@@ -12,6 +12,7 @@ public class Graph {
     public double[][] heuristicMap; //heuristic relative to the source Map
     public double[][] probMap; //prob of obstacle Map
     public Vertex[][] parent;
+    public int[][] explored;   
     public int width;
     public int height;
     public int dim;
@@ -80,15 +81,17 @@ public class Graph {
         sourceX = sourceX / dim;
         sourceY = sourceY / dim;
         this.heuristicMap = new double[height][width];
+        this.explored = new int[height][width];
         for (int y = 0; y < height; y ++) {
             for (int x = 0; x < width; x++) {
                 double deltaX = sourceX - x;
                 double deltaY = sourceY - y;
+                this.explored[y][x] = -1;
                 this.heuristicMap[y][x] = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                 // this.map[y][x] = Math.sqrt(deltaX * deltaX + deltaY * deltaY); 
             } 
         }
-        // this.heuristicMap[sourceY][sourceX] = 0;
+        this.heuristicMap[sourceY][sourceX] = 0;
         this.map[sourceY][sourceX] = 0;
     }
 

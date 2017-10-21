@@ -28,37 +28,38 @@ public class AStar {
         List<Vertex> path = new ArrayList<>();
         Vertex v = origin;
         v.setDistToSource(G);
+        double alpha = 0.4;
         goal.setDistToSource(G);
         pq.add(v);
+        int goalX = (int) goal.posX;
+        int goalY = (int) goal.posY;
         int adi = 1;
+        int pintei = 0;
         while (!pq.isEmpty() && !goal.equals(v)) {
             v = pq.poll();
-            StdDraw.setPenRadius(0.01);
-            StdDraw.setPenColor(StdDraw.GREEN);
+
             StdDraw.point(v.posX, v.posY);
+            System.out.println("pintei " + pintei + " e adicionei " + adi);
+            pintei++;
             int vX = (int) v.posX;
             int vY = (int) v.posY;
+            if (vX == goalX && vY == goalY) break;
+            G.explored[vY][vX] = 1;
             double vDist = G.map[vY][vX];
-            double vPriority = G.heuristicMap[vY][vX] + vDist;
+            double vProb = G.probMap[vY][vX];
+            double vPriority = G.heuristicMap[vY][vX] + (alpha * vDist) + ((1 - alpha) * vProb);
             List<Vertex> neighbors = v.getNeighbors(4, G.width, G.height);
             for (Vertex neighbor : neighbors) {
-                neighbor.setDistToSource(G);
-                System.out.println(vDist + vPriority + " < " + vPriority + " ?");
+                // System.out.println(vDist + vPriority + " < " + vPriority + " ?");
                 int x = (int) neighbor.posX;
                 int y = (int) neighbor.posY;
-                double neighDist = G.map[y][x];
-                if (vDist + vPriority < neighDist) {
-                    G.setParent(y, x, v);
-                    G.map[y][x] = vDist + vPriority;
-                    //tem que atualizar heuristicMap pro neighbor?
-                    if (pq.contains(neighbor)) {
-                        pq.remove(neighbor);
-                        pq.add(neighbor);
-                        adi++;
-                    } else {
-                        adi++;
-                        pq.add(neighbor);
-                    }
+                if (G.explored[y][x] == -1) {
+                     G.map[y][x] = vPriority;
+                     G.probMap[y][x] *= vProb;
+                     G.explored[y][x] = 1;
+                     neighbor.setDistToSource(G);
+                     pq.add(neighbor);
+                     adi++;
                 }
             }
         }
@@ -113,7 +114,7 @@ public class AStar {
         // pontos iniciais e finais
         double startX = 90 / dim;
         double startY = 730 / dim;
-        int goalX = 490 / dim;
+        int goalX = 90 / dim;
         int goalY = 18 / dim;
 
         for (int y = 0; y < G.height; y++) {
@@ -126,7 +127,8 @@ public class AStar {
         }
 
         G.fillMapForSource((int) startX * dim, (int) startY * dim);
-
+        StdDraw.setPenRadius(0.01);
+        StdDraw.setPenColor(StdDraw.GREEN);
         List<Vertex> path = new ArrayList<>();
         Vertex startVertex = new Vertex(startX, startY);
         Vertex goalVertex = new Vertex(goalX, goalY);
